@@ -1,7 +1,6 @@
 const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const url = require('url');
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -11,17 +10,13 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
-      webSecurity: false // 添加此行允许加载本地资源
+      webSecurity: false // 允许加载本地资源
     }
   });
 
   // 加载index.html
-  mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
-    protocol: 'file:',
-    slashes: true
-  }));
-
+  mainWindow.loadFile(path.join(__dirname, 'index.html'));
+  
   // 添加开发工具便于调试
   mainWindow.webContents.openDevTools();
   
@@ -39,6 +34,11 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit();
+});
+
+// 获取应用路径
+ipcMain.handle('get-app-path', async () => {
+  return app.getAppPath();
 });
 
 // 处理文件保存 - 使用对话框选择保存位置
