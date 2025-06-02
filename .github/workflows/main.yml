@@ -10,6 +10,7 @@ jobs:
     defaults:
       run:
         working-directory: ./experiment
+        shell: cmd
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -19,40 +20,38 @@ jobs:
         with:
           node-version: 16
       
-      - name: Debug - List root directory
-        run: dir /B ..
-        
-      - name: Debug - List current directory  
-        run: dir /B
-      
+      - name: Debug - List directories
+        run: |
+          echo "Current directory:"
+          dir
+          
       - name: Install dependencies
         run: npm install
       
-      - name: Debug - Check Electron Builder
+      - name: Install Electron explicitly
+        run: npm install electron@28.1.0 --save-dev
+      
+      - name: Debug - Check installations
         run: |
-          echo "Checking electron-builder installation"
-          dir node_modules\electron-builder
-          echo "Checking .bin directory"
-          dir node_modules\.bin
+          echo "Checking electron installation"
+          dir node_modules\electron 2>nul || echo "electron directory not found"
           echo "Package.json content:"
           type package.json
           
       - name: Debug - Check key files
         run: |
           echo "Checking main.js:"
-          if exist main.js (type main.js | findstr /C:"require('electron')") else (echo "main.js not found")
+          if exist main.js (type main.js | findstr "require") else (echo "main.js not found")
           echo "Checking preload.js:"
-          if exist preload.js (type preload.js | findstr /C:"contextBridge") else (echo "preload.js not found")
-          echo "Checking index.html:"
-          if exist index.html (type index.html | findstr /C:"bundle.js") else (echo "index.html not found")
+          if exist preload.js (echo "preload.js exists") else (echo "preload.js not found")
       
       - name: Build with Electron Builder
-        run: npx electron-builder --win
+        run: npx electron-builder --win --electron-version 28.1.0
       
-      - name: List build directory
+      - name: List build results
         run: |
-          echo "Checking if 发布版本 directory exists"
-          if exist 发布版本 (dir 发布版本) else (echo "发布版本 directory not found")
+          echo "Checking output directories:"
+          dir
 
   build-macos:
     runs-on: macos-latest
@@ -70,36 +69,33 @@ jobs:
       
       - name: Debug - List directories
         run: |
-          echo "Root directory:"
-          ls -la ..
-          echo "Current directory:"
+          echo "Current directory files:"
           ls -la
       
       - name: Install dependencies
         run: npm install
       
-      - name: Debug - Check Electron Builder
+      - name: Install Electron explicitly
+        run: npm install electron@28.1.0 --save-dev
+      
+      - name: Debug - Check installations
         run: |
-          echo "Checking electron-builder installation"
-          ls -la node_modules/electron-builder || echo "electron-builder not found"
-          echo "Checking .bin directory"
-          ls -la node_modules/.bin || echo ".bin directory not found"
+          echo "Checking electron installation"
+          ls -la node_modules/electron || echo "electron not found"
           echo "Package.json content:"
           cat package.json
           
       - name: Debug - Check key files
         run: |
           echo "Checking main.js:"
-          [ -f main.js ] && grep -n "require('electron')" main.js || echo "main.js not found"
+          [ -f main.js ] && cat main.js | grep "require" || echo "main.js not found"
           echo "Checking preload.js:"
-          [ -f preload.js ] && grep -n "contextBridge" preload.js || echo "preload.js not found"
-          echo "Checking index.html:"
-          [ -f index.html ] && grep -n "bundle.js" index.html || echo "index.html not found"
+          [ -f preload.js ] && echo "preload.js exists" || echo "preload.js not found"
       
       - name: Build with Electron Builder
-        run: npx electron-builder --mac
+        run: npx electron-builder --mac --electron-version 28.1.0
       
-      - name: List build directory
+      - name: List build results
         run: |
-          echo "Checking if 发布版本 directory exists"
-          [ -d "发布版本" ] && ls -la 发布版本 || echo "发布版本 directory not found" 
+          echo "Checking all files:"
+          ls -la
