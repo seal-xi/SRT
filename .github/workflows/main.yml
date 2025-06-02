@@ -9,14 +9,15 @@ jobs:
     runs-on: windows-latest
     defaults:
       run:
-        working-directory: ./experiment  # 指定工作目录
+        working-directory: ./experiment
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: 16
       - run: npm install
-      - run: npm run build
+      # 移除webpack构建步骤
+      # - run: npm run build
       - run: npm run build-win
       - name: List Windows build directory
         run: dir 发布版本\
@@ -25,14 +26,15 @@ jobs:
     runs-on: macos-latest
     defaults:
       run:
-        working-directory: ./experiment  # 指定工作目录
+        working-directory: ./experiment
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: 16
       - run: npm install
-      - run: npm run build
+      # 移除webpack构建步骤
+      # - run: npm run build
       - run: npm run build-mac
       - name: List Mac build directory
         run: ls -la 发布版本/
