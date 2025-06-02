@@ -3,7 +3,11 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*' # 当推送带v开头的标签时触发，如v1.0.0
+      - 'v*'
+
+# 添加这个关键部分
+permissions:
+  contents: write
 
 jobs:
   build-windows:
@@ -20,16 +24,12 @@ jobs:
       - run: npm install
       - run: npm install electron@28.1.0 --save-dev
       - run: npx electron-builder --win -c.electronVersion=28.1.0 -c.win.icon=false
-      - name: List build directory
-        run: dir 发布版本\
-      # 上传到Release
-      - name: Upload to Release
+      - name: Upload Windows Build
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            experiment/发布版本/*.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          files: experiment/发布版本/*.exe
+          draft: false
+          generate_release_notes: true
 
   build-macos:
     runs-on: macos-latest
@@ -44,13 +44,9 @@ jobs:
       - run: npm install
       - run: npm install electron@28.1.0 --save-dev
       - run: npx electron-builder --mac -c.electronVersion=28.1.0
-      - name: List build directory
-        run: ls -la 发布版本/
-      # 上传到Release
-      - name: Upload to Release
+      - name: Upload Mac Build
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            experiment/发布版本/*.dmg
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          files: experiment/发布版本/*.dmg
+          draft: false
+          generate_release_notes: true
