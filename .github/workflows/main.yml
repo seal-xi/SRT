@@ -13,15 +13,10 @@ jobs:
         with:
           node-version: 16
       - run: npm install
-      # 添加webpack构建步骤
       - run: npm run build
       - run: npm run build-win
-      # 使用最基本的文件上传方式
-      - name: Upload Windows Build
-        uses: actions/upload-artifact@v1
-        with:
-          name: windows-build
-          path: 发布版本
+      - name: List Windows build directory
+        run: dir 发布版本\
 
   build-macos:
     runs-on: macos-latest
@@ -31,13 +26,7 @@ jobs:
         with:
           node-version: 16
       - run: npm install
-      # 添加webpack构建步骤
       - run: npm run build
       - run: npm run build-mac
-      # 使用最基本的文件上传方式
-      - name: Upload Mac Build
-        uses: actions/upload-artifact@v1
-        with:
-          name: macos-build
-          path: 发布版本
-
+      - name: List Mac build directory
+        run: ls -la 发布版本/
