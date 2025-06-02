@@ -1,21 +1,23 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true
     }
   });
 
   // 加载index.html
   mainWindow.loadFile('index.html');
-
-  // 打开开发者工具（可选）
-  // mainWindow.webContents.openDevTools();
+  
+  // 移除菜单栏，让界面更简洁
+  mainWindow.setMenuBarVisibility(false);
 }
 
 app.whenReady().then(() => {
@@ -30,15 +32,34 @@ app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit();
 });
 
-// 处理保存文件的IPC通信
+// 处理文件保存 - 使用对话框选择保存位置
 ipcMain.handle('save-file', async (event, { filePath, data }) => {
   try {
-    const fs = require('fs');
-    const buffer = Buffer.from(data);
-    fs.writeFileSync(filePath, buffer);
-    return { success: true, path: filePath };
+    const { canceled, filePaths } = await dialog.showSaveDialog({
+      defaultPath: filePath,
+      filters: [{ name: 'Zip文件', extensions: ['zip'] }]
+    });
+    
+    if (canceled) {
+      return { success: false, message: '用户取消' };
+    }
+    
+    fs.writeFileSync(filePaths[0], Buffer.from(data));
+    return { success: true, path: filePaths[0] };
   } catch (error) {
     console.error('保存文件失败:', error);
+    return { success: false, message: error.message };
+  }
+});
+
+// 创建目录
+ipcMain.handle('create-directory', async (event, dirPath) => {
+  try {
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+    return { success: true, path: dirPath };
+  } catch (error) {
     return { success: false, message: error.message };
   }
 });
