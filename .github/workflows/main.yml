@@ -11,16 +11,48 @@ jobs:
       run:
         working-directory: ./experiment
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: npm install
-      # 移除webpack构建步骤
-      # - run: npm run build
-      - run: npm run build-win
-      - name: List Windows build directory
-        run: dir 发布版本\
+      
+      - name: Debug - List root directory
+        run: dir /B ..
+        
+      - name: Debug - List current directory  
+        run: dir /B
+      
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Debug - Check Electron Builder
+        run: |
+          echo "Checking electron-builder installation"
+          dir node_modules\electron-builder
+          echo "Checking .bin directory"
+          dir node_modules\.bin
+          echo "Package.json content:"
+          type package.json
+          
+      - name: Debug - Check key files
+        run: |
+          echo "Checking main.js:"
+          if exist main.js (type main.js | findstr /C:"require('electron')") else (echo "main.js not found")
+          echo "Checking preload.js:"
+          if exist preload.js (type preload.js | findstr /C:"contextBridge") else (echo "preload.js not found")
+          echo "Checking index.html:"
+          if exist index.html (type index.html | findstr /C:"bundle.js") else (echo "index.html not found")
+      
+      - name: Build with Electron Builder
+        run: npx electron-builder --win
+      
+      - name: List build directory
+        run: |
+          echo "Checking if 发布版本 directory exists"
+          if exist 发布版本 (dir 发布版本) else (echo "发布版本 directory not found")
 
   build-macos:
     runs-on: macos-latest
@@ -28,13 +60,46 @@ jobs:
       run:
         working-directory: ./experiment
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: npm install
-      # 移除webpack构建步骤
-      # - run: npm run build
-      - run: npm run build-mac
-      - name: List Mac build directory
-        run: ls -la 发布版本/
+      
+      - name: Debug - List directories
+        run: |
+          echo "Root directory:"
+          ls -la ..
+          echo "Current directory:"
+          ls -la
+      
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Debug - Check Electron Builder
+        run: |
+          echo "Checking electron-builder installation"
+          ls -la node_modules/electron-builder || echo "electron-builder not found"
+          echo "Checking .bin directory"
+          ls -la node_modules/.bin || echo ".bin directory not found"
+          echo "Package.json content:"
+          cat package.json
+          
+      - name: Debug - Check key files
+        run: |
+          echo "Checking main.js:"
+          [ -f main.js ] && grep -n "require('electron')" main.js || echo "main.js not found"
+          echo "Checking preload.js:"
+          [ -f preload.js ] && grep -n "contextBridge" preload.js || echo "preload.js not found"
+          echo "Checking index.html:"
+          [ -f index.html ] && grep -n "bundle.js" index.html || echo "index.html not found"
+      
+      - name: Build with Electron Builder
+        run: npx electron-builder --mac
+      
+      - name: List build directory
+        run: |
+          echo "Checking if 发布版本 directory exists"
+          [ -d "发布版本" ] && ls -la 发布版本 || echo "发布版本 directory not found" 
