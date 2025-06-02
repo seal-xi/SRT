@@ -7,6 +7,9 @@ on:
 jobs:
   build-windows:
     runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: ./experiment  # 指定工作目录
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -20,6 +23,9 @@ jobs:
 
   build-macos:
     runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: ./experiment  # 指定工作目录
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
