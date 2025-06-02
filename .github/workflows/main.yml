@@ -14,7 +14,7 @@ jobs:
           node-version: 16
       - run: npm install
       - run: npm run build-win
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v2
         with:
           name: windows-build
           path: 发布版本/*.exe
@@ -28,7 +28,7 @@ jobs:
           node-version: 16
       - run: npm install
       - run: npm run build-mac
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v2
         with:
           name: macos-build
           path: 发布版本/*.dmg
