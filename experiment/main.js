@@ -1,6 +1,7 @@
 const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const url = require('url');
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -9,20 +10,20 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
-      contextIsolation: true
+      contextIsolation: true,
+      webSecurity: false // 添加此行允许加载本地资源
     }
   });
 
-const path = require('path');
-const url = require('url');
-mainWindow.loadURL(url.format({
-  pathname: path.join(__dirname, 'index.html'),
-  protocol: 'file:',
-  slashes: true
-}));
+  // 加载index.html
+  mainWindow.loadURL(url.format({
+    pathname: path.join(__dirname, 'index.html'),
+    protocol: 'file:',
+    slashes: true
+  }));
 
-// 添加开发工具便于调试
-mainWindow.webContents.openDevTools();
+  // 添加开发工具便于调试
+  mainWindow.webContents.openDevTools();
   
   // 移除菜单栏，让界面更简洁
   mainWindow.setMenuBarVisibility(false);
