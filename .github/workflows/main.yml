@@ -1,8 +1,9 @@
-name: Build
+name: Build and Release
 
 on:
   push:
-    branches: [ main ]
+    tags:
+      - 'v*' # 当推送带v开头的标签时触发，如v1.0.0
 
 jobs:
   build-windows:
@@ -19,12 +20,16 @@ jobs:
       - run: npm install
       - run: npm install electron@28.1.0 --save-dev
       - run: npx electron-builder --win -c.electronVersion=28.1.0 -c.win.icon=false
-      # 添加上传步骤
-      - name: Upload Windows Build
-        uses: actions/upload-artifact@v2
+      - name: List build directory
+        run: dir 发布版本\
+      # 上传到Release
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: windows-app
-          path: experiment/发布版本/手语复述实验*.exe
+          files: |
+            experiment/发布版本/*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-macos:
     runs-on: macos-latest
@@ -39,9 +44,13 @@ jobs:
       - run: npm install
       - run: npm install electron@28.1.0 --save-dev
       - run: npx electron-builder --mac -c.electronVersion=28.1.0
-      # 添加上传步骤  
-      - name: Upload Mac Build
-        uses: actions/upload-artifact@v2  
+      - name: List build directory
+        run: ls -la 发布版本/
+      # 上传到Release
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: mac-app
-          path: experiment/发布版本/*.dmg
+          files: |
+            experiment/发布版本/*.dmg
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
