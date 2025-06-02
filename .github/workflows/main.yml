@@ -18,10 +18,13 @@ jobs:
           node-version: 16
       - run: npm install
       - run: npm install electron@28.1.0 --save-dev
-      # 移除图标要求
       - run: npx electron-builder --win -c.electronVersion=28.1.0 -c.win.icon=false
-      - name: List build results
-        run: dir 发布版本\
+      # 添加上传步骤
+      - name: Upload Windows Build
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-app
+          path: experiment/发布版本/手语复述实验*.exe
 
   build-macos:
     runs-on: macos-latest
@@ -36,5 +39,9 @@ jobs:
       - run: npm install
       - run: npm install electron@28.1.0 --save-dev
       - run: npx electron-builder --mac -c.electronVersion=28.1.0
-      - name: List build results
-        run: ls -la 发布版本/
+      # 添加上传步骤  
+      - name: Upload Mac Build
+        uses: actions/upload-artifact@v2  
+        with:
+          name: mac-app
+          path: experiment/发布版本/*.dmg
