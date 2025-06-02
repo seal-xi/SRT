@@ -12,46 +12,13 @@ jobs:
         working-directory: ./experiment
         shell: cmd
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 16
-      
-      - name: Debug - List directories
-        run: |
-          echo "Current directory:"
-          dir
-          
-      - name: Install dependencies
-        run: npm install
-      
-      - name: Install Electron explicitly
-        run: npm install electron@28.1.0 --save-dev
-      
-      - name: Debug - Check installations
-        run: |
-          echo "Checking electron installation"
-          dir node_modules\electron 2>nul || echo "electron directory not found"
-          echo "Package.json content:"
-          type package.json
-          
-      - name: Debug - Check key files
-        run: |
-          echo "Checking main.js:"
-          if exist main.js (type main.js | findstr "require") else (echo "main.js not found")
-          echo "Checking preload.js:"
-          if exist preload.js (echo "preload.js exists") else (echo "preload.js not found")
-      
-      - name: Build with Electron Builder
-        run: npx electron-builder --win --electron-version 28.1.0
-      
-      - name: List build results
-        run: |
-          echo "Checking output directories:"
-          dir
+      - run: npm install
+      - run: npm install electron@28.1.0 --save-dev
+      - run: npx electron-builder --win -c.electronVersion=28.1.0
 
   build-macos:
     runs-on: macos-latest
@@ -59,43 +26,10 @@ jobs:
       run:
         working-directory: ./experiment
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 16
-      
-      - name: Debug - List directories
-        run: |
-          echo "Current directory files:"
-          ls -la
-      
-      - name: Install dependencies
-        run: npm install
-      
-      - name: Install Electron explicitly
-        run: npm install electron@28.1.0 --save-dev
-      
-      - name: Debug - Check installations
-        run: |
-          echo "Checking electron installation"
-          ls -la node_modules/electron || echo "electron not found"
-          echo "Package.json content:"
-          cat package.json
-          
-      - name: Debug - Check key files
-        run: |
-          echo "Checking main.js:"
-          [ -f main.js ] && cat main.js | grep "require" || echo "main.js not found"
-          echo "Checking preload.js:"
-          [ -f preload.js ] && echo "preload.js exists" || echo "preload.js not found"
-      
-      - name: Build with Electron Builder
-        run: npx electron-builder --mac --electron-version 28.1.0
-      
-      - name: List build results
-        run: |
-          echo "Checking all files:"
-          ls -la
+      - run: npm install
+      - run: npm install electron@28.1.0 --save-dev
+      - run: npx electron-builder --mac -c.electronVersion=28.1.0
